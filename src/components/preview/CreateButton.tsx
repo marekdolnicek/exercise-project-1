@@ -13,12 +13,17 @@ interface CreateButtonProps {
 export function CreateButton({ isComplete }: CreateButtonProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle')
   const reset = useMonitoringStore((s) => s.reset)
+  const task = useMonitoringStore((s) => s.task)
 
   const handleCreate = async () => {
     setStatus('loading')
     // Simulate API call
     await new Promise((r) => setTimeout(r, 1500))
     setStatus('success')
+    console.info('Mocked task result', {
+      status: 'ready',
+      task,
+    })
     toast.success('Monitoring task created successfully!')
   }
 

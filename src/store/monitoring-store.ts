@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
+import { persist, createJSONStorage, devtools } from 'zustand/middleware'
 import { MonitoringTask, Source, Entity, Filter, MonitoringScope } from '@/lib/schema'
 import { nanoid } from 'nanoid'
 
@@ -30,12 +30,13 @@ const initialTask: MonitoringTask = {
 }
 
 export const useMonitoringStore = create<MonitoringState>()(
-  persist(
-    (set) => ({
-      task: initialTask,
-      isComplete: false,
-      setTopic: (topic) => set((s) => ({ task: { ...s.task, scope: { ...s.task.scope, topic } } })),
-      setIntent: (intent) => set((s) => ({ task: { ...s.task, scope: { ...s.task.scope, intent } } })),
+  devtools(
+    persist(
+      (set) => ({
+        task: initialTask,
+        isComplete: false,
+        setTopic: (topic) => set((s) => ({ task: { ...s.task, scope: { ...s.task.scope, topic } } })),
+        setIntent: (intent) => set((s) => ({ task: { ...s.task, scope: { ...s.task.scope, intent } } })),
       addKeyword: (keyword) => set((s) => ({ task: { ...s.task, scope: { ...s.task.scope, keywords: [...s.task.scope.keywords, keyword] } } })),
       removeKeyword: (keyword) => set((s) => ({ task: { ...s.task, scope: { ...s.task.scope, keywords: s.task.scope.keywords.filter(k => k !== keyword) } } })),
       addEntity: (entity) => set((s) => ({ task: { ...s.task, scope: { ...s.task.scope, entities: [...s.task.scope.entities, { ...entity, id: nanoid() }] } } })),
@@ -47,8 +48,10 @@ export const useMonitoringStore = create<MonitoringState>()(
       removeSource: (id) => set((s) => ({ task: { ...s.task, sources: s.task.sources.filter(src => src.id !== id) } })),
       updateScope: (scope) => set((s) => ({ task: { ...s.task, scope: { ...s.task.scope, ...scope } } })),
       setComplete: (complete) => set({ isComplete: complete }),
-      reset: () => set({ task: { ...initialTask, id: nanoid() }, isComplete: false }),
-    }),
-    { name: 'monitoring-task-storage', storage: createJSONStorage(() => sessionStorage) }
+        reset: () => set({ task: { ...initialTask, id: nanoid() }, isComplete: false }),
+      }),
+      { name: 'monitoring-task-storage', storage: createJSONStorage(() => sessionStorage) }
+    ),
+    { name: 'monitoring-store' }
   )
 )
